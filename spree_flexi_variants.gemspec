@@ -16,11 +16,9 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.requirements << 'none'
 
-  spree_version = '~> 3.0.0'
-
   s.add_dependency('carrierwave')
   s.add_dependency('mini_magick')
-  s.add_dependency 'spree', spree_version
+  s.add_dependency 'spree_core', '~> 3.1.0.beta'
 
   s.add_development_dependency 'capybara',           '~> 2.1'
   s.add_development_dependency 'coffee-rails'
