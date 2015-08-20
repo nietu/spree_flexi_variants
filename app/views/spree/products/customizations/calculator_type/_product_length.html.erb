@@ -1,0 +1,27 @@
+<% # render the (possibly shared) calculator %>
+<% cust_dom_id = "product_length_input_#{product_customization_type.customizable_product_options.first.id}" %>
+<%= render :partial => "spree/products/customizations/calculator/#{calculator_name(product_customization_type)}",
+           :locals => {:calculator=>product_customization_type.calculator} %>
+
+<% # add the 'change' listener for this particular file input, which will make use of the calculator above %>
+
+<%= content_for :head do %>
+  <%= javascript_tag do %>
+    $(document).on('keyup change', '#<%= cust_dom_id %>', function(e) {
+      var tf = $(this);
+      delay(function(){
+        // update the hidden price field for this file input
+        $(tf).siblings(".customization_price").val(calculate_product_length_price(tf));
+        updatePrice();
+      }, 1000 ); // delay
+    }); // keyup
+  <% end %>
+<% end %>
+
+<div class="col-md-5 form-group">
+  <% option = product_customization_type.customizable_product_options.first %>
+  <%= number_field_tag "#{param_prefix}[#{product_customization_type.customizable_product_options.first.id}]",
+    product_customization_type.customizable_product_options.first.calculator.preferred_min_amount, :id => cust_dom_id ,
+    :style=>"float: left;", :class=>"customization", :min => product_customization_type.customizable_product_options.first.calculator.preferred_min_amount, :required => true %>
+  <%= hidden_field_tag "customization_price", "#{product_customization_type.customizable_product_options.first.calculator.min_amount_price}", :class => "customization_price" %>
+</div>

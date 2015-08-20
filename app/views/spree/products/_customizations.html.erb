@@ -3,9 +3,6 @@
   <% lookup = ActionView::LookupContext.new(ActionController::Base.view_paths, {formats: [:html]}) %>
 
   <div id="product-customizations">
-    <div class= 'col-sm-12'>
-      <h3 class="product-section-title"><%=Spree.t(:customizations) %></h3>
-    </div>
     <ul class="list-group list-unstyled">
       <% @product.product_customization_types.group_by{ |x| calculator_name(x) }.each do |product_customization_grouped_by_calc_type| %>
         <% product_clac_name, product_customization_type_group = product_customization_grouped_by_calc_type %>
