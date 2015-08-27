@@ -18,6 +18,8 @@
       // 'updatePrice()' takes the base price + current 'configuration' adjustments + 'customization' adjustments
 
       var base_price = <%= @product.price %>;
+      var currency_symbol = "<%= current_currency_symbol %>";
+
 
       // keep track of ad_hoc adjustments
       var price_modifier_map = {};
@@ -120,8 +122,8 @@
       var cur_configuration_price = compute_configuration_price();
       var cur_customization_price = compute_customization_price();
       var cur_price = base_price + cur_variant_price_diff + cur_configuration_price + cur_customization_price;
-
-      $('.price.selling').text(cur_price.toFixed(2)).formatCurrency({region: "<%= I18n.locale.to_s %>"});
+      
+      $('.price.selling').text(currency_symbol + cur_price.toFixed(2));
     }
 
     //]]>
