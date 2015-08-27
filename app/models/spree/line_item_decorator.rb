@@ -1,5 +1,6 @@
 module Spree
   LineItem.class_eval do
+    include VatPriceCalculation
     has_many :ad_hoc_option_values_line_items, dependent: :destroy
     has_many :ad_hoc_option_values, through: :ad_hoc_option_values_line_items
     has_many :product_customizations, dependent: :destroy
@@ -40,5 +41,20 @@ module Spree
     def cost_money
       Spree::Money.new(cost_price, currency: currency)
     end
+
+    def price_including_vat_for_line_item(price_options)
+      options = price_options.merge(tax_category: self.tax_category)
+      gross_amount(price, options)
+    end
+
+    def display_price_including_vat_for_line_item(price_options)
+      Spree::Money.new(price_including_vat_for_line_item(price_options), currency: currency)
+    end
+
+    def update_price
+      # Not Tested yet
+      self.price = price_including_vat_for_line_item(tax_zone: tax_zone)
+    end
+
   end
 end

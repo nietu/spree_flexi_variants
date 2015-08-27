@@ -27,13 +27,7 @@ module Spree
         line_item.ad_hoc_option_values = product_option_values
 
         offset_price = product_option_values.map(&:price_modifier).compact.sum + product_customizations_values.map {|product_customization| product_customization.price(variant)}.compact.sum
-
-        if currency
-          line_item.currency = currency unless currency.nil?
-          line_item.price    = variant.price_in(currency).amount + offset_price
-        else
-          line_item.price    = variant.price + offset_price
-        end
+        line_item.price = variant.price + offset_price
       end
       line_item.target_shipment = options[:shipment] if options.has_key? :shipment
       line_item.save!
