@@ -1,5 +1,0 @@
-<% if product.product_customization_types.present? && product.product_customization_types.first.calculator.type == "Spree::Calculator::ProductLength" %>
-  <span class="price selling lead" itemprop="price"><%= product.price_in(current_currency).display_price_for_length_customized_product %></span>
-<% else %>
-  <span class="price selling lead" itemprop="price"><%= display_price(product) %></span>
-<% end %>
