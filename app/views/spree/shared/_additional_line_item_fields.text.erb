@@ -11,7 +11,7 @@
     <% next if customization.customized_product_options.all? {|customized_product_option| customized_product_option.empty? } %>
     <%= customization.product_customization_type.presentation %>:
       <% customization.customized_product_options.each do |option| %>
-         <% next if option.empty? %>
+         <% next if option.empty? or option.customizable_product_option.visible == false %>
 
          <% partial = option.customizable_product_option.name %>
          <% lookup=ActionView::LookupContext.new(ActionController::Base.view_paths, {formats: [:html]}) %>
