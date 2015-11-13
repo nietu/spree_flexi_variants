@@ -1,0 +1,16 @@
+<td class="cart-item-image" data-hook="cart_item_image">
+<% if item.design_id.present? %>
+    <% item.design.update_cachedthumb if item.design.thumbnail_expired %>
+    <% if defined?(attachments) %>
+      <%= image_tag(attachments[attachment_id].url, :style => "width: auto; height: auto; max-width: 200px; max-height: 200px;") %>
+    <% else %>
+      <%= image_tag(item.design.cachedthumb) %>
+    <% end %>
+<% else %>
+    <% if variant.images.length == 0 %>
+      <%= link_to small_image(variant.product), variant.product %>
+    <% else %>
+      <%= link_to image_tag(variant.images.first.attachment.url(:small)), variant.product %>
+    <% end %>
+<% end %> <%# if item.design_id.present? %>
+</td>
