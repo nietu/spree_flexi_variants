@@ -1,0 +1,12 @@
+<td class="order-item-image" data-hook="order_item_image">
+<% if item.design_id.present? %>
+    <% item.design.update_cachedthumb if item.design.thumbnail_expired %>
+      <%= image_tag(item.design.cachedthumb) %>
+<% else %>
+    <% if item.variant.images.length == 0 %>
+      <%= link_to small_image(item.variant.product), item.variant.product %>
+    <% else %>
+      <%= link_to image_tag(item.variant.images.first.attachment.url(:small)), item.variant.product %>
+    <% end %>
+<% end %> <%# if item.line_item.design_id.present? %>
+</td>
