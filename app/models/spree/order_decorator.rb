@@ -38,44 +38,46 @@ module Spree
       current_item
     end
 
-    def merge!(order, user = nil)
-      # this is bad, but better than before
-      order.line_items.each do |other_order_line_item|
-        next unless other_order_line_item.currency == currency
-
-        # Compare the line items of the other order with mine.
-        # Make sure you allow any extensions to chime in on whether or
-        # not the extension-specific parts of the line item match
-        current_line_item = self.line_items.detect do |my_li|
-          my_li.variant == other_order_line_item.variant && self.line_item_comparison_hooks.all? do |hook|
-            self.send(hook, my_li, other_order_line_item.serializable_hash)
+    if false
+      def merge!(order, user = nil)
+        # this is bad, but better than before
+        order.line_items.each do |other_order_line_item|
+          next unless other_order_line_item.currency == currency
+  
+          # Compare the line items of the other order with mine.
+          # Make sure you allow any extensions to chime in on whether or
+          # not the extension-specific parts of the line item match
+          current_line_item = self.line_items.detect do |my_li|
+            my_li.variant == other_order_line_item.variant && self.line_item_comparison_hooks.all? do |hook|
+              self.send(hook, my_li, other_order_line_item.serializable_hash)
+            end
+          end
+          if current_line_item
+            current_line_item.quantity += other_order_line_item.quantity
+            current_line_item.save!
+          else
+            other_order_line_item.order_id = self.id
+            other_order_line_item.save!
           end
         end
-        if current_line_item
-          current_line_item.quantity += other_order_line_item.quantity
-          current_line_item.save!
-        else
-          other_order_line_item.order_id = self.id
-          other_order_line_item.save!
+        order.line_items.each do |line_item|
+          self.add_variant(line_item.variant, line_item.quantity, {
+            ad_hoc_option_values: line_item.ad_hoc_option_value_ids,
+            product_customizations: line_item.product_customizations
+          })
         end
+  
+        self.associate_user!(user) if !self.user && !user.blank?
+  
+        updater.update_item_count
+        updater.update_item_total
+        updater.persist_totals
+  
+        # So that the destroy doesn't take out line items which may have been re-assigned
+        order.line_items.reload
+        order.destroy
       end
-      order.line_items.each do |line_item|
-        self.add_variant(line_item.variant, line_item.quantity, {
-          ad_hoc_option_values: line_item.ad_hoc_option_value_ids,
-          product_customizations: line_item.product_customizations
-        })
-      end
-
-      self.associate_user!(user) if !self.user && !user.blank?
-
-      updater.update_item_count
-      updater.update_item_total
-      updater.persist_totals
-
-      # So that the destroy doesn't take out line items which may have been re-assigned
-      order.line_items.reload
-      order.destroy
-    end
+    end # if false
 
     def product_customizations_match(line_item,new_customizations)
       existing_customizations = line_item.product_customizations
@@ -95,8 +97,14 @@ module Spree
         return false unless existing_customizations.map(&:product_customization_type_id).sort == new_product_customizations_ids.sort 
         new_vals = Set.new pairs
       else
-        new_customizations = new_customizations.product_customizations
-
+        if new_customizations["id"].present? and new_customizations["order_id"].present?
+        # current use case: comparison of line_items when doing order merge, new_customizations is actually line_item
+          second_line_item = Spree::LineItem.find_by(id: new_customizations["id"], order_id: new_customizations["order_id"])        
+          new_customizations = second_line_item.product_customizations
+        else
+          new_customizations = new_customizations.product_customizations
+        end
+  
         # if there aren't any customizations, there's a 'match'
         return true if existing_customizations.empty? && new_customizations.empty?
         # exact match of all customization types?
