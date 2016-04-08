@@ -7,7 +7,7 @@
       <% @product.product_customization_types.group_by{ |x| calculator_name(x) }.each do |product_customization_grouped_by_calc_type| %>
         <% product_clac_name, product_customization_type_group = product_customization_grouped_by_calc_type %>
         <div class='col-sm-12'>
-          <legend><%= product_customization_type_group.first.presentation %></legend>
+          <legend><%= Spree.t(product_customization_type_group.first.presentation) %></legend>
         </div>
         <% product_customization_type_group.each do |product_customization_type| %>
           <%# render a custom partial based on the customization name? %>
